@@ -6,12 +6,15 @@ type Gatekeeper struct {
 
 
 func New(maxWorkers int) *Gatekeeper{
+	if maxWorkers < 1 {
+ 		maxWorkers = 1
+ 	}
 	return &Gatekeeper{
 		slots:make(chan struct{},maxWorkers),
 	}
 }
 
-func (g *Gatekeeper) TryAquire()bool{
+func (g *Gatekeeper) TryAcquire()bool{
 	select {
 	case g.slots<-struct{}{}:
 		return true
