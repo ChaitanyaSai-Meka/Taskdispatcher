@@ -25,8 +25,11 @@ func StartTCP(addr string, d *dispatcher.Dispatcher) error {
 		for {
 			conn, err := ln.Accept()
 			if err != nil {
-				log.Println("accept error:", err)
-				continue
+				if ne, ok := err.(net.Error); ok && ne.Temporary() {
+					log.Println("accept temporary error:", err)
+					continue
+				}
+				log.Fatal("accept fatal error:", err)
 			}
 			go handleConn(conn, d)
 		}
@@ -40,6 +43,9 @@ func handleConn(conn net.Conn, d *dispatcher.Dispatcher) {
 
 	scanner := bufio.NewScanner(conn)
 	if !scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			fmt.Fprintln(conn, "error: read failed:", err)
+		}
 		return
 	}
 	line := strings.TrimSpace(scanner.Text())

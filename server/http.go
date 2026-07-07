@@ -12,6 +12,11 @@ import (
 func StartHTTP(addr string, d *dispatcher.Dispatcher) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		idStr := strings.TrimPrefix(r.URL.Path, "/status/")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
@@ -26,7 +31,10 @@ func StartHTTP(addr string, d *dispatcher.Dispatcher) error {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(task)
+		if err := json.NewEncoder(w).Encode(task); err != nil {
+			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+			return
+		}
 	})
 
 	return http.ListenAndServe(addr, mux)
