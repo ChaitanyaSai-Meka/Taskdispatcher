@@ -12,16 +12,16 @@ import (
 type Dispatcher struct {
 	gk *gatekeeper.Gatekeeper
 
-	newTaskCh chan models.Task 
+	newTaskCh chan models.Task
 	doneCh    chan models.Task
-	timeoutCh chan models.Task 
+	timeoutCh chan models.Task
 
-	queue1 []models.Task 
+	queue1 []models.Task
 	queue2 []models.Task
-	queue3 []models.Task 
+	queue3 []models.Task
 
 	resultsMu sync.RWMutex
-	results   map[int]models.Task 
+	results   map[int]models.Task
 }
 
 func New(maxWorkers int) *Dispatcher {
@@ -33,7 +33,6 @@ func New(maxWorkers int) *Dispatcher {
 		results:   make(map[int]models.Task),
 	}
 }
-
 
 func (d *Dispatcher) Submit(t models.Task) {
 	d.newTaskCh <- t
@@ -59,7 +58,7 @@ func (d *Dispatcher) Run() {
 			d.tryDispatchNext()
 
 		case t := <-d.timeoutCh:
-			d.handleTimeout(t) 
+			d.handleTimeout(t)
 		}
 	}
 }

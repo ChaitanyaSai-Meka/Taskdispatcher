@@ -12,7 +12,7 @@ import (
 	"github.com/ChaitanyaSai-Meka/Taskdispatcher/models"
 )
 
-var nextID int64 
+var nextID int64
 
 func StartTCP(addr string, d *dispatcher.Dispatcher) error {
 	ln, err := net.Listen("tcp", addr)
@@ -59,10 +59,10 @@ func handleConn(conn net.Conn, d *dispatcher.Dispatcher) {
 
 	id := atomic.AddInt64(&nextID, 1)
 	task := models.Task{
-		ID:     int(id),
-		TaskName:   name,
-		Class:  class,
-		Status: models.StatusQueued,
+		ID:       int(id),
+		TaskName: name,
+		Class:    class,
+		Status:   models.StatusQueued,
 	}
 
 	d.Submit(task)
